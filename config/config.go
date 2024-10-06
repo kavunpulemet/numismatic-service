@@ -2,27 +2,20 @@ package config
 
 import (
 	"github.com/spf13/viper"
-	"os"
 )
 
 const (
 	configPath    = "config"
 	configName    = "config"
-	dbHostKey     = "db.host"
+	dbDatabaseKey = "db.database"
 	dbPortKey     = "db.port"
-	dbUsernameKey = "db.username"
-	dbPasswordEnv = "DB_PASSWORD"
-	dbNameKey     = "db.dbname"
-	dbSSLModeKey  = "db.sslmode"
+	dbHostKey     = "db.host"
 )
 
 type Settings struct {
-	Host     string
+	Database string
 	Port     string
-	Username string
-	Password string
-	DBName   string
-	SSLMode  string
+	Host     string
 }
 
 func NewSettings() (Settings, error) {
@@ -32,12 +25,9 @@ func NewSettings() (Settings, error) {
 	}
 
 	return Settings{
-		Host:     viper.GetString(dbHostKey),
+		Database: viper.GetString(dbDatabaseKey),
 		Port:     viper.GetString(dbPortKey),
-		Username: viper.GetString(dbUsernameKey),
-		Password: os.Getenv(dbPasswordEnv),
-		DBName:   viper.GetString(dbNameKey),
-		SSLMode:  viper.GetString(dbSSLModeKey),
+		Host:     viper.GetString(dbHostKey),
 	}, nil
 }
 

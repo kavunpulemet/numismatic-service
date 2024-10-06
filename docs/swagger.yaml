@@ -18,7 +18,7 @@ definitions:
         description: Историческая справка о монете
         type: string
       id:
-        type: integer
+        type: string
       material:
         description: Материал (золото, серебро, медь, сплав)
         type: string
@@ -115,7 +115,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       responses:
         "200":
           description: ok
@@ -139,7 +139,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -167,7 +167,7 @@ paths:
         in: path
         name: id
         required: true
-        type: integer
+        type: string
       - description: Updated coin data
         in: body
         name: coin

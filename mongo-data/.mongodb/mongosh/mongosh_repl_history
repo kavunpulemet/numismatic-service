@@ -1,0 +1,4 @@
+db.coins.find().pretty()
+use coins
+show collections
+use coins

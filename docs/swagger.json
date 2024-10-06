@@ -95,7 +95,7 @@
                 "summary": "Get coin by ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Coin ID",
                         "name": "id",
                         "in": "path",
@@ -137,7 +137,7 @@
                 "summary": "Update coin",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Coin ID",
                         "name": "id",
                         "in": "path",
@@ -182,7 +182,7 @@
                 "summary": "Delete coin",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Coin ID",
                         "name": "id",
                         "in": "path",
@@ -237,7 +237,7 @@
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "material": {
                     "description": "Материал (золото, серебро, медь, сплав)",

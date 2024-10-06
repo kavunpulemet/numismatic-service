@@ -101,7 +101,7 @@ const docTemplate = `{
                 "summary": "Get coin by ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Coin ID",
                         "name": "id",
                         "in": "path",
@@ -143,7 +143,7 @@ const docTemplate = `{
                 "summary": "Update coin",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Coin ID",
                         "name": "id",
                         "in": "path",
@@ -188,7 +188,7 @@ const docTemplate = `{
                 "summary": "Delete coin",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Coin ID",
                         "name": "id",
                         "in": "path",
@@ -243,7 +243,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "material": {
                     "description": "Материал (золото, серебро, медь, сплав)",

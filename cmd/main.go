@@ -48,7 +48,7 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
 	<-sigChan
 
-	if err = app.Shutdown(ctx); err != nil {
+	if err = app.Shutdown(); err != nil {
 		logger.Errorf(err.Error())
 		return
 	}

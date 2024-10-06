@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
-	"strconv"
 )
 
 // Create godoc
@@ -29,7 +28,7 @@ func Create(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 			return
 		}
 
-		coinId, err := service.Create(coin)
+		coinId, err := service.Create(ctx, coin)
 		if err != nil {
 			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusInternalServerError)
 			return
@@ -56,7 +55,7 @@ func Create(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 // @Router /coins/ [get]
 func GetAll(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		coins, err := service.GetAll()
+		coins, err := service.GetAll(ctx)
 		if err != nil {
 			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusInternalServerError)
 			return
@@ -74,26 +73,26 @@ func GetAll(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 // @Description Retrieves a coin by its ID
 // @Tags coins
 // @Produce  json
-// @Param id path int true "Coin ID"
+// @Param id path string true "Coin ID"
 // @Success 200 {object} models.Coin "Coin data"
 // @Failure 400 {object} utils.ErrorResponse "Invalid coin ID"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /coins/{id}/ [get]
 func GetById(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		coinId, err := strconv.Atoi(mux.Vars(r)["id"])
-		if err != nil {
-			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusBadRequest)
+		coinId := mux.Vars(r)["id"]
+		if coinId == "" {
+			utils.NewErrorResponse(ctx, w, "coinId cannot be empty", http.StatusBadRequest)
 			return
 		}
 
-		coins, err := service.GetById(coinId)
+		coin, err := service.GetById(ctx, coinId)
 		if err != nil {
 			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		if err = utils.WriteResponse(w, http.StatusOK, coins); err != nil {
+		if err = utils.WriteResponse(w, http.StatusOK, coin); err != nil {
 			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -106,7 +105,7 @@ func GetById(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 // @Tags coins
 // @Accept  json
 // @Produce  json
-// @Param id path int true "Coin ID"
+// @Param id path string true "Coin ID"
 // @Param coin body models.Coin true "Updated coin data"
 // @Success 200 {object} utils.StatusResponse "ok"
 // @Failure 400 {object} utils.ErrorResponse "Invalid coin ID or bad request"
@@ -114,24 +113,25 @@ func GetById(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 // @Router /coins/{id}/ [put]
 func Update(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		coinId, err := strconv.Atoi(mux.Vars(r)["id"])
-		if err != nil {
-			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusBadRequest)
+		coinId := mux.Vars(r)["id"]
+		if coinId == "" {
+			utils.NewErrorResponse(ctx, w, "coinId cannot be empty", http.StatusBadRequest)
 			return
 		}
 
 		var input models.Coin
-		if err = json.NewDecoder(r.Body).Decode(&input); err != nil {
+
+		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		if err = service.Update(coinId, input); err != nil {
+		if err := service.Update(ctx, coinId, input); err != nil {
 			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		if err = utils.WriteResponse(w, http.StatusOK, utils.StatusResponse{Status: "ok"}); err != nil {
+		if err := utils.WriteResponse(w, http.StatusOK, utils.StatusResponse{Status: "ok"}); err != nil {
 			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -142,25 +142,25 @@ func Update(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 // @Summary Delete coin
 // @Description Deletes a coin by its ID
 // @Tags coins
-// @Param id path int true "Coin ID"
+// @Param id path string true "Coin ID"
 // @Success 200 {object} utils.StatusResponse "ok"
 // @Failure 400 {object} utils.ErrorResponse "Invalid coin ID"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /coins/{id}/ [delete]
 func Delete(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		coinId, err := strconv.Atoi(mux.Vars(r)["id"])
-		if err != nil {
-			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusBadRequest)
+		coinId := mux.Vars(r)["id"]
+		if coinId == "" {
+			utils.NewErrorResponse(ctx, w, "coinId cannot be empty", http.StatusBadRequest)
 			return
 		}
 
-		if err = service.Delete(coinId); err != nil {
+		if err := service.Delete(ctx, coinId); err != nil {
 			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		if err = utils.WriteResponse(w, http.StatusOK, utils.StatusResponse{Status: "ok"}); err != nil {
+		if err := utils.WriteResponse(w, http.StatusOK, utils.StatusResponse{Status: "ok"}); err != nil {
 			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusInternalServerError)
 			return
 		}

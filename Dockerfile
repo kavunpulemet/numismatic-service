@@ -8,8 +8,6 @@ COPY . .
 
 RUN go mod download
 
-RUN go install github.com/pressly/goose/v3/cmd/goose@latest
-
 RUN go build -o app ./cmd
 
 EXPOSE 81

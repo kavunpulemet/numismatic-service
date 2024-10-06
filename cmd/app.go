@@ -8,15 +8,16 @@ import (
 	"NumismaticClubApi/pkg/service/coin"
 	"context"
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.uber.org/zap"
 )
 
 type App struct {
 	ctx        utils.MyContext
 	server     *api.Server
-	repository *sqlx.DB
+	repository *mongo.Database
 	settings   config.Settings
 }
 
@@ -28,18 +29,18 @@ func NewApp(ctx context.Context, logger *zap.SugaredLogger, settings config.Sett
 }
 
 func (a *App) InitDatabase() error {
-	var err error
-	a.repository, err = sqlx.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
-		a.settings.Host, a.settings.Port, a.settings.Username, a.settings.DBName, a.settings.Password, a.settings.SSLMode))
+	mongoURL := fmt.Sprintf("mongodb://%s:%s", a.settings.Host, a.settings.Port)
+	client, err := mongo.Connect(options.Client().ApplyURI(mongoURL))
 	if err != nil {
-		return err
+		a.ctx.Logger.Fatalf("failed to connect to MongoDB: %v", err)
 	}
 
-	err = a.repository.Ping()
+	err = client.Ping(context.Background(), nil)
 	if err != nil {
-		return err
+		a.ctx.Logger.Fatalf("failed to ping MongoDB: %v", err)
 	}
 
+	a.repository = client.Database(a.settings.Database)
 	return nil
 }
 
@@ -60,14 +61,14 @@ func (a *App) Run() error {
 	return nil
 }
 
-func (a *App) Shutdown(ctx context.Context) error {
-	err := a.server.Shutdown(ctx)
+func (a *App) Shutdown() error {
+	err := a.server.Shutdown(a.ctx.Ctx)
 	if err != nil {
 		a.ctx.Logger.Errorf("Failed to disconnect from server %v", err)
 		return err
 	}
 
-	err = a.repository.Close()
+	err = a.repository.Client().Disconnect(a.ctx.Ctx)
 	if err != nil {
 		a.ctx.Logger.Errorf("failed to disconnect from bd %v", err)
 	}
