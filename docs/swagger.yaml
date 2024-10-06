@@ -1,0 +1,195 @@
+basePath: /api/v1
+definitions:
+  models.Coin:
+    properties:
+      condition:
+        description: Состояние (например, UNC, XF, VG и т.д.)
+        type: string
+      country:
+        description: Страна происхождения
+        type: string
+      denomination:
+        description: Номинал
+        type: string
+      diameter:
+        description: Диаметр в миллиметрах
+        type: number
+      historicalInfo:
+        description: Историческая справка о монете
+        type: string
+      id:
+        type: integer
+      material:
+        description: Материал (золото, серебро, медь, сплав)
+        type: string
+      mintMark:
+        description: Монетный двор (например, "M" для Москвы)
+        type: string
+      name:
+        description: Название монеты
+        type: string
+      thickness:
+        description: Толщина в миллиметрах
+        type: number
+      value:
+        description: Оценочная стоимость монеты
+        type: number
+      weight:
+        description: Вес в граммах
+        type: number
+      year:
+        description: Год выпуска
+        type: integer
+    type: object
+  utils.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  utils.StatusResponse:
+    properties:
+      status:
+        type: string
+    type: object
+host: localhost:81
+info:
+  contact: {}
+  description: This is a sample API for a Numismatic Club.
+  title: Numismatic Club API
+  version: "1.0"
+paths:
+  /coins/:
+    get:
+      description: Retrieves all coins from the collection
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of coins
+          schema:
+            items:
+              $ref: '#/definitions/models.Coin'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get all coins
+      tags:
+      - coins
+    post:
+      consumes:
+      - application/json
+      description: Adds a new coin to the collection
+      parameters:
+      - description: Coin data
+        in: body
+        name: coin
+        required: true
+        schema:
+          $ref: '#/definitions/models.Coin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: id of the created coin
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Create a new coin
+      tags:
+      - coins
+  /coins/{id}/:
+    delete:
+      description: Deletes a coin by its ID
+      parameters:
+      - description: Coin ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/utils.StatusResponse'
+        "400":
+          description: Invalid coin ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Delete coin
+      tags:
+      - coins
+    get:
+      description: Retrieves a coin by its ID
+      parameters:
+      - description: Coin ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Coin data
+          schema:
+            $ref: '#/definitions/models.Coin'
+        "400":
+          description: Invalid coin ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get coin by ID
+      tags:
+      - coins
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing coin by its ID
+      parameters:
+      - description: Coin ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated coin data
+        in: body
+        name: coin
+        required: true
+        schema:
+          $ref: '#/definitions/models.Coin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/utils.StatusResponse'
+        "400":
+          description: Invalid coin ID or bad request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Update coin
+      tags:
+      - coins
+swagger: "2.0"

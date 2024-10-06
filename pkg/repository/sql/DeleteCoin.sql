@@ -1,0 +1,3 @@
+DELETE
+FROM coins
+WHERE id = $1

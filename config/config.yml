@@ -1,0 +1,8 @@
+port: "81"
+
+db:
+  username: "postgres"
+  host: "db" # service name from docker-compose
+  port: "5432"
+  dbname: "postgres"
+  sslmode: "disable"
