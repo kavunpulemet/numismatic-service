@@ -7,8 +7,8 @@ import (
 	"NumismaticClubApi/pkg/repository"
 	"NumismaticClubApi/pkg/service/coin"
 	"context"
-	"fmt"
 	_ "github.com/lib/pq"
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.uber.org/zap"
@@ -29,8 +29,7 @@ func NewApp(ctx context.Context, logger *zap.SugaredLogger, settings config.Sett
 }
 
 func (a *App) InitDatabase() error {
-	mongoURL := fmt.Sprintf("mongodb://%s:%s", a.settings.Host, a.settings.Port)
-	client, err := mongo.Connect(options.Client().ApplyURI(mongoURL))
+	client, err := mongo.Connect(options.Client().ApplyURI(a.settings.Mongo.MongoURL))
 	if err != nil {
 		a.ctx.Logger.Fatalf("failed to connect to MongoDB: %v", err)
 	}
@@ -40,12 +39,19 @@ func (a *App) InitDatabase() error {
 		a.ctx.Logger.Fatalf("failed to ping MongoDB: %v", err)
 	}
 
-	a.repository = client.Database(a.settings.Database)
+	a.repository = client.Database(a.settings.Mongo.Database)
 	return nil
 }
 
 func (a *App) InitService() {
-	s := coin.NewCoinService(repository.NewRepository(a.repository))
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     a.settings.Redis.Address,
+		Password: a.settings.Redis.Password,
+		DB:       a.settings.Redis.DB,
+	})
+
+	s := coin.NewCoinService(repository.NewRepository(a.repository), rdb)
+
 	a.server = api.NewServer(a.ctx)
 	a.server.HandleCoins(a.ctx, s)
 }

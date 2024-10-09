@@ -8,13 +8,17 @@ services:
     ports:
       - "81:80"
     depends_on:
-      - db
+      - mongo
+      - redis
     environment:
-      - MONGO_HOST=db
+      - MONGO_HOST=mongo
       - MONGO_PORT=27017
       - MONGO_DATABASE=coins
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
 
-  db:
+  mongo:
     restart: no
     image: mongo:latest
     volumes:
@@ -25,3 +29,9 @@ services:
       - "27019:27017"
     command:
       mongod
+
+  redis:
+    restart: no
+    image: redis:latest
+    ports:
+      - "6379:6379"

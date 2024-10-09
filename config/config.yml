@@ -1,6 +1,12 @@
 port: "81"
 
-db:
+mongo:
   database: "coins"
+  host: "mongo" # service name from docker-compose
   port: "27017"
-  host: "db" # service name from docker-compose
+
+redis:
+  host: "redis"
+  port: "6379"
+  password: ""
+  db: 0

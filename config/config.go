@@ -1,21 +1,36 @@
 package config
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
 )
 
 const (
-	configPath    = "config"
-	configName    = "config"
-	dbDatabaseKey = "db.database"
-	dbPortKey     = "db.port"
-	dbHostKey     = "db.host"
+	configPath       = "config"
+	configName       = "config"
+	mongoDatabaseKey = "mongo.database"
+	mongoPortKey     = "mongo.port"
+	mongoHostKey     = "mongo.host"
+	redisPortKey     = "redis.port"
+	redisHostKey     = "redis.host"
+	redisPasswordKey = "redis.password"
+	redisDBKey       = "redis.db"
 )
 
 type Settings struct {
+	Mongo MongoSettings
+	Redis RedisSettings
+}
+
+type MongoSettings struct {
 	Database string
-	Port     string
-	Host     string
+	MongoURL string
+}
+
+type RedisSettings struct {
+	Address  string
+	Password string
+	DB       int
 }
 
 func NewSettings() (Settings, error) {
@@ -25,9 +40,15 @@ func NewSettings() (Settings, error) {
 	}
 
 	return Settings{
-		Database: viper.GetString(dbDatabaseKey),
-		Port:     viper.GetString(dbPortKey),
-		Host:     viper.GetString(dbHostKey),
+		Mongo: MongoSettings{
+			Database: viper.GetString(mongoDatabaseKey),
+			MongoURL: fmt.Sprintf("mongodb://%s:%s", viper.GetString(mongoHostKey), viper.GetString(mongoPortKey)),
+		},
+		Redis: RedisSettings{
+			Address:  fmt.Sprintf("%s:%s", viper.GetString(redisHostKey), viper.GetString(redisPortKey)),
+			Password: viper.GetString(redisPasswordKey),
+			DB:       viper.GetInt(redisDBKey),
+		},
 	}, nil
 }
 
