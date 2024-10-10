@@ -4,7 +4,8 @@ import (
 	"NumismaticClubApi/config"
 	"NumismaticClubApi/pkg/api"
 	"NumismaticClubApi/pkg/api/utils"
-	"NumismaticClubApi/pkg/repository"
+	"NumismaticClubApi/pkg/database"
+	"NumismaticClubApi/pkg/database/cache"
 	"NumismaticClubApi/pkg/service/coin"
 	"context"
 	_ "github.com/lib/pq"
@@ -12,13 +13,20 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.uber.org/zap"
+	"time"
+)
+
+const (
+	cacheKeyAllCoins = "all_coins"
+	ttl              = 10 * time.Minute
 )
 
 type App struct {
-	ctx        utils.MyContext
-	server     *api.Server
-	repository *mongo.Database
-	settings   config.Settings
+	ctx      utils.MyContext
+	server   *api.Server
+	mongo    *mongo.Database
+	redis    *redis.Client
+	settings config.Settings
 }
 
 func NewApp(ctx context.Context, logger *zap.SugaredLogger, settings config.Settings) *App {
@@ -34,23 +42,29 @@ func (a *App) InitDatabase() error {
 		a.ctx.Logger.Fatalf("failed to connect to MongoDB: %v", err)
 	}
 
-	err = client.Ping(context.Background(), nil)
+	err = client.Ping(a.ctx.Ctx, nil)
 	if err != nil {
 		a.ctx.Logger.Fatalf("failed to ping MongoDB: %v", err)
 	}
 
-	a.repository = client.Database(a.settings.Mongo.Database)
-	return nil
-}
+	a.mongo = client.Database(a.settings.Mongo.Database)
 
-func (a *App) InitService() {
-	rdb := redis.NewClient(&redis.Options{
+	a.redis = redis.NewClient(&redis.Options{
 		Addr:     a.settings.Redis.Address,
 		Password: a.settings.Redis.Password,
 		DB:       a.settings.Redis.DB,
 	})
 
-	s := coin.NewCoinService(repository.NewRepository(a.repository), rdb)
+	_, err = a.redis.Ping(a.ctx.Ctx).Result()
+	if err != nil {
+		a.ctx.Logger.Fatalf("failed to ping Redis: %v", err)
+	}
+
+	return nil
+}
+
+func (a *App) InitService() {
+	s := coin.NewCoinService(database.NewMongoRepository(a.mongo), cache.NewRedisCache(a.redis, cacheKeyAllCoins, ttl))
 
 	a.server = api.NewServer(a.ctx)
 	a.server.HandleCoins(a.ctx, s)
@@ -74,7 +88,7 @@ func (a *App) Shutdown() error {
 		return err
 	}
 
-	err = a.repository.Client().Disconnect(a.ctx.Ctx)
+	err = a.mongo.Client().Disconnect(a.ctx.Ctx)
 	if err != nil {
 		a.ctx.Logger.Errorf("failed to disconnect from bd %v", err)
 	}

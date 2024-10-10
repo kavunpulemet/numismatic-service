@@ -52,9 +52,9 @@ func (s *Server) Shutdown(ctx context.Context) error {
 }
 
 func (s *Server) HandleCoins(ctx utils.MyContext, service coin.CoinService) {
-	s.router.HandleFunc("/api/v1/coins/", handler.Create(ctx, service)).Methods(http.MethodPost)
-	s.router.HandleFunc("/api/v1/coins/", handler.GetAll(ctx, service)).Methods(http.MethodGet)
-	s.router.HandleFunc("/api/v1/coins/{id}/", handler.GetById(ctx, service)).Methods(http.MethodGet)
-	s.router.HandleFunc("/api/v1/coins/{id}/", handler.Update(ctx, service)).Methods(http.MethodPut)
-	s.router.HandleFunc("/api/v1/coins/{id}/", handler.Delete(ctx, service)).Methods(http.MethodDelete)
+	s.router.HandleFunc("/api/coins/", handler.Create(ctx, service)).Methods(http.MethodPost)
+	s.router.HandleFunc("/api/coins/", handler.GetAll(ctx, service)).Methods(http.MethodGet)
+	s.router.HandleFunc("/api/coins/{id}/", handler.GetById(ctx, service)).Methods(http.MethodGet)
+	s.router.HandleFunc("/api/coins/{id}/", handler.Update(ctx, service)).Methods(http.MethodPut)
+	s.router.HandleFunc("/api/coins/{id}/", handler.Delete(ctx, service)).Methods(http.MethodDelete)
 }

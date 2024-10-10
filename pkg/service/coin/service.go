@@ -3,13 +3,10 @@ package coin
 import (
 	"NumismaticClubApi/models"
 	"NumismaticClubApi/pkg/api/utils"
-	"NumismaticClubApi/pkg/repository"
-	"encoding/json"
-	"github.com/redis/go-redis/v9"
-	"time"
+	"NumismaticClubApi/pkg/database"
+	"NumismaticClubApi/pkg/database/cache"
+	"NumismaticClubApi/pkg/service/mappers"
 )
-
-const CacheKeyAllCoins = "all_coins"
 
 type CoinService interface {
 	Create(ctx utils.MyContext, coin models.Coin) (string, error)
@@ -19,74 +16,68 @@ type CoinService interface {
 	Delete(ctx utils.MyContext, coinId string) error
 }
 
-type ImplCoin struct {
-	repo        repository.CoinRepository
-	redisClient *redis.Client
+type ImplCoinService struct {
+	mongo database.CoinRepository
+	redis cache.RedisCache
 }
 
-func NewCoinService(repo repository.CoinRepository, client *redis.Client) *ImplCoin {
-	return &ImplCoin{
-		repo:        repo,
-		redisClient: client,
+func NewCoinService(repo database.CoinRepository, cache cache.RedisCache) *ImplCoinService {
+	return &ImplCoinService{
+		mongo: repo,
+		redis: cache,
 	}
 }
 
-func (s *ImplCoin) Create(ctx utils.MyContext, coin models.Coin) (string, error) {
-	coinId, err := s.repo.Create(ctx, coin)
+func (s *ImplCoinService) Create(ctx utils.MyContext, coin models.Coin) (string, error) {
+	coinId, err := s.mongo.Create(ctx, coin)
 	if err != nil {
 		return coinId, err
 	}
 
-	s.redisClient.Del(ctx.Ctx, CacheKeyAllCoins)
-
+	s.redis.Delete(ctx)
 	return coinId, nil
 }
 
-func (s *ImplCoin) GetAll(ctx utils.MyContext) ([]models.Coin, error) {
-	var coins []models.Coin
-
-	cachedCoins, err := s.redisClient.Get(ctx.Ctx, CacheKeyAllCoins).Result()
+func (s *ImplCoinService) GetAll(ctx utils.MyContext) ([]models.Coin, error) {
+	coins, err := s.redis.Get(ctx)
 	if err == nil {
-		if err = json.Unmarshal([]byte(cachedCoins), &coins); err == nil {
-			return coins, nil
-		}
+		return coins, nil
 	}
 
-	coins, err = s.repo.GetAll(ctx)
+	coins, err = s.mongo.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	coinsJSON, _ := json.Marshal(coins)
-	s.redisClient.Set(ctx.Ctx, CacheKeyAllCoins, coinsJSON, time.Minute*10)
+	s.redis.Set(ctx, coins)
 
 	return coins, nil
 }
 
-func (s *ImplCoin) GetById(ctx utils.MyContext, coinId string) (models.Coin, error) {
-	coin, err := s.repo.GetById(ctx, coinId)
+func (s *ImplCoinService) GetById(ctx utils.MyContext, coinId string) (models.Coin, error) {
+	coin, err := s.mongo.GetById(ctx, coinId)
 
 	return coin, err
 }
 
-func (s *ImplCoin) Update(ctx utils.MyContext, coinId string, input models.Coin) error {
-	err := s.repo.Update(ctx, coinId, input)
+func (s *ImplCoinService) Update(ctx utils.MyContext, coinId string, input models.Coin) error {
+	err := s.mongo.Update(ctx, coinId, mappers.MapToUpdateCoin(input))
 	if err != nil {
 		return err
 	}
 
-	s.redisClient.Del(ctx.Ctx, CacheKeyAllCoins)
+	s.redis.Delete(ctx)
 
 	return nil
 }
 
-func (s *ImplCoin) Delete(ctx utils.MyContext, coinId string) error {
-	err := s.repo.Delete(ctx, coinId)
+func (s *ImplCoinService) Delete(ctx utils.MyContext, coinId string) error {
+	err := s.mongo.Delete(ctx, coinId)
 	if err != nil {
 		return err
 	}
 
-	s.redisClient.Del(ctx.Ctx, CacheKeyAllCoins)
+	s.redis.Delete(ctx)
 
 	return nil
 }

@@ -15,7 +15,7 @@ import (
 // @version 1.0
 // @description This is a sample API for a Numismatic Club.
 // @host localhost:81
-// @BasePath /api/v1
+// @BasePath /api
 func main() {
 	prdLogger, _ := zap.NewProduction()
 	defer prdLogger.Sync()
