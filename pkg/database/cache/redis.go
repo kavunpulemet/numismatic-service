@@ -1,47 +1,49 @@
 package cache
 
 import (
-	"NumismaticClubApi/models"
 	"NumismaticClubApi/pkg/api/utils"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/redis/go-redis/v9"
 	"time"
 )
 
-type RedisCache struct {
+type RedisCache[K, T any] struct {
 	client   *redis.Client
 	cacheKey string
 	ttl      time.Duration
 }
 
-func NewRedisCache(client *redis.Client, cacheKey string, ttl time.Duration) RedisCache {
-	return RedisCache{
+func NewRedisCache[K, T any](client *redis.Client, cacheKey string, ttl time.Duration) *RedisCache[K, T] {
+	return &RedisCache[K, T]{
 		client:   client,
 		cacheKey: cacheKey,
 		ttl:      ttl,
 	}
 }
 
-func (r RedisCache) Set(ctx utils.MyContext, coins []models.Coin) {
-	coinsJSON, _ := json.Marshal(coins)
-	r.client.Set(ctx.Ctx, r.cacheKey, coinsJSON, r.ttl)
+func (r RedisCache[K, T]) Set(ctx utils.MyContext, key K, input T) {
+	inputJSON, _ := json.Marshal(input)
+	r.client.Set(ctx.Ctx, fmt.Sprintf(r.cacheKey, key), inputJSON, r.ttl)
 }
 
-func (r RedisCache) Get(ctx utils.MyContext) ([]models.Coin, error) {
-	var coins []models.Coin
+func (r RedisCache[K, T]) Get(ctx utils.MyContext, key K) (T, error) {
+	var result T
 
-	cachedCoins, err := r.client.Get(ctx.Ctx, r.cacheKey).Result()
+	bytes, err := r.client.Get(ctx.Ctx, fmt.Sprintf(r.cacheKey, key)).Bytes()
 	if err != nil {
-		return nil, err
+		if errors.Is(err, redis.Nil) {
+			return result, ErrNotFound
+		}
+		return result, err
 	}
 
-	if err = json.Unmarshal([]byte(cachedCoins), &coins); err == nil {
-		return coins, nil
-	}
+	err = json.Unmarshal(bytes, &result)
 
-	return nil, err
+	return result, err
 }
 
-func (r RedisCache) Delete(ctx utils.MyContext) {
-	r.client.Del(ctx.Ctx, r.cacheKey)
+func (r RedisCache[K, T]) Delete(ctx utils.MyContext, key K) {
+	r.client.Del(ctx.Ctx, fmt.Sprintf(r.cacheKey, key))
 }

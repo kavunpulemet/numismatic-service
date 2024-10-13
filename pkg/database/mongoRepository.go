@@ -5,6 +5,7 @@ import (
 	"NumismaticClubApi/pkg/api/utils"
 	dbmodels "NumismaticClubApi/pkg/database/models"
 	_ "embed"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -26,6 +27,8 @@ type MongoRepository struct {
 func NewMongoRepository(db *mongo.Database) *MongoRepository {
 	return &MongoRepository{collection: db.Collection("coins")}
 }
+
+var ErrNotFound = errors.New("mongo: item not found")
 
 func (r *MongoRepository) Create(ctx utils.MyContext, coin models.Coin) (string, error) {
 	coin.Id = uuid.New().String()
@@ -58,6 +61,10 @@ func (r *MongoRepository) GetAll(ctx utils.MyContext) ([]models.Coin, error) {
 		return nil, err
 	}
 
+	if len(coins) == 0 {
+		return nil, ErrNotFound
+	}
+
 	return coins, nil
 }
 
@@ -66,6 +73,10 @@ func (r *MongoRepository) GetById(ctx utils.MyContext, coinId string) (models.Co
 
 	err := r.collection.FindOne(ctx.Ctx, bson.M{"_id": coinId}).Decode(&coin)
 	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return models.Coin{}, ErrNotFound
+		}
+
 		return models.Coin{}, err
 	}
 

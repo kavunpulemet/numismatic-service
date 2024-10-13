@@ -2,6 +2,7 @@ package main
 
 import (
 	"NumismaticClubApi/config"
+	"NumismaticClubApi/models"
 	"NumismaticClubApi/pkg/api"
 	"NumismaticClubApi/pkg/api/utils"
 	"NumismaticClubApi/pkg/database"
@@ -17,8 +18,8 @@ import (
 )
 
 const (
-	cacheKeyAllCoins = "all_coins"
-	ttl              = 10 * time.Minute
+	cacheKey = "coin:%s"
+	ttl      = 10 * time.Minute
 )
 
 type App struct {
@@ -64,7 +65,7 @@ func (a *App) InitDatabase() error {
 }
 
 func (a *App) InitService() {
-	s := coin.NewCoinService(database.NewMongoRepository(a.mongo), cache.NewRedisCache(a.redis, cacheKeyAllCoins, ttl))
+	s := coin.NewCoinService(database.NewMongoRepository(a.mongo), cache.NewRedisCache[string, models.Coin](a.redis, cacheKey, ttl))
 
 	a.server = api.NewServer(a.ctx)
 	a.server.HandleCoins(a.ctx, s)
