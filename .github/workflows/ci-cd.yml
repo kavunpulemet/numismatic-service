@@ -28,19 +28,28 @@ jobs:
         run: |
           docker-compose up -d --build
 
-      - name: Show MongoDB logs
+      - name: Show MongoDB logs (initial check)
         run: docker logs mongo || true
 
       - name: Wait for MongoDB to be ready
         run: |
-          until docker exec numismatic-app mongo --eval "db.stats()" > /dev/null 2>&1; do
+          retries=30
+          until docker exec mongo mongo --eval "db.stats()" > /dev/null 2>&1; do
+            if [ $retries -le 0 ]; then
+              echo "MongoDB failed to start."
+              exit 1
+            fi
             echo "Waiting for MongoDB to start..."
-            sleep 5
+            retries=$((retries - 1))
+            sleep 3
           done
 
       - name: Run tests
         run: |
           docker exec numismatic-app go test ./tests
+
+      - name: Show MongoDB logs (post-check)
+        run: docker logs mongo || true
 
       - name: Stop and remove containers
         run: |

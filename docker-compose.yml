@@ -22,7 +22,7 @@ services:
     container_name: mongo
     image: mongo:latest
     volumes:
-      - ./mongo-data:/data/db
+      - /data/db
     environment:
       - MONGO_INITDB_DATABASE=coins
     ports:
