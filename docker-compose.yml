@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   app:
-    restart: no
+    #restart: "no"
     container_name: numismatic-app
     build: .
     command: ./app
@@ -20,7 +18,7 @@ services:
       - REDIS_PASSWORD=
 
   mongo:
-    #restart: no
+    #restart: "no"
     image: mongo:latest
     volumes:
       - ./mongo-data:/data/db
@@ -32,7 +30,7 @@ services:
       mongod
 
   redis:
-    #restart: no
+    #restart: "no"
     image: redis:latest
     ports:
       - "6379:6379"
