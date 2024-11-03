@@ -28,6 +28,9 @@ jobs:
         run: |
           docker-compose up -d --build app
 
+      - name: Wait for a few seconds
+        run: sleep 30
+
       - name: Show MongoDB logs (initial check)
         run: docker logs mongo || true
 
