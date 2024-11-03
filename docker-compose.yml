@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   app:
     #restart: "no"
@@ -22,7 +24,7 @@ services:
     container_name: mongo
     image: mongo:latest
     volumes:
-      - /data/db
+      - mongo-data:/data/db
     environment:
       - MONGO_INITDB_DATABASE=coins
     ports:
@@ -36,3 +38,6 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
+
+volumes:
+  mongo-data:
