@@ -29,12 +29,12 @@ jobs:
           docker-compose up -d --build
 
       - name: Show MongoDB logs (initial check)
-        run: docker logs numismaticclubapi-mongo-1 || true
+        run: docker logs mongo || true
 
       - name: Wait for MongoDB to be ready
         run: |
           retries=30
-          until docker exec numismaticclubapi-mongo-1 mongo --eval "db.stats()" > /dev/null 2>&1; do
+          until docker exec mongo mongo --eval "db.stats()" > /dev/null 2>&1; do
             if [ $retries -le 0 ]; then
               echo "MongoDB failed to start."
               exit 1
@@ -49,7 +49,7 @@ jobs:
           docker exec numismatic-app go test ./tests
 
       - name: Show MongoDB logs (post-check)
-        run: docker logs numismaticclubapi-mongo-1 || true
+        run: docker logs mongo || true
 
       - name: Stop and remove containers
         run: |
