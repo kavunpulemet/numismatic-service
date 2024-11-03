@@ -26,8 +26,8 @@ services:
       - MONGO_INITDB_DATABASE=coins
     ports:
       - "27017:27017"
-    #command:
-    #  mongod
+    command:
+      mongod
 
   redis:
     #restart: "no"
