@@ -10,6 +10,6 @@ RUN go mod download
 
 RUN go build -o app ./cmd
 
-EXPOSE 81
+EXPOSE 80
 
 CMD ["./app"]

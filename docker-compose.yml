@@ -5,7 +5,7 @@ services:
     build: .
     command: ./app
     ports:
-      - "81:80"
+      - "80:80"
     depends_on:
       - mongo
       - redis
@@ -25,9 +25,9 @@ services:
     environment:
       - MONGO_INITDB_DATABASE=coins
     ports:
-      - "27019:27017"
-    command:
-      mongod
+      - "27017:27017"
+    #command:
+    #  mongod
 
   redis:
     #restart: "no"

@@ -1,4 +1,4 @@
-port: "81"
+port: "80"
 
 mongo:
   database: "coins"

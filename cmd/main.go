@@ -14,7 +14,7 @@ import (
 // @title Numismatic Club API
 // @version 1.0
 // @description This is a sample API for a Numismatic Club.
-// @host localhost:81
+// @host localhost:80
 // @BasePath /api
 func main() {
 	prdLogger, _ := zap.NewProduction()

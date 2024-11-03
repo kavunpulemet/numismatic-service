@@ -51,7 +51,7 @@ definitions:
       status:
         type: string
     type: object
-host: localhost:81
+host: localhost:80
 info:
   contact: {}
   description: This is a sample API for a Numismatic Club.
