@@ -29,13 +29,13 @@ jobs:
           docker-compose up -d --build
 
       - name: Show MongoDB logs
-        run: docker logs numismatic-service_mongo_1 || true
+        run: docker logs mongo || true
 
       - name: Wait for MongoDB to be ready
         run: |
           until docker exec numismatic-app mongo --eval "db.stats()" > /dev/null 2>&1; do
             echo "Waiting for MongoDB to start..."
-            sleep 2
+            sleep 5
           done
 
       - name: Run tests
