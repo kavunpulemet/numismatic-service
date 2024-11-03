@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-type CoinRepository interface {
+type Repository interface {
 	Create(ctx utils.MyContext, coin models.Coin) (string, error)
 	GetAll(ctx utils.MyContext) ([]models.Coin, error)
 	GetById(ctx utils.MyContext, coinId string) (models.Coin, error)
@@ -35,7 +35,8 @@ func (r *MongoRepository) Create(ctx utils.MyContext, coin models.Coin) (string,
 
 	_, err := r.collection.InsertOne(ctx.Ctx, coin)
 	if err != nil {
-		return "", err
+		ctx.Logger.Errorw("Error inserting coin into MongoDB", "coin_id", coin.Id, "error", err)
+		return "", fmt.Errorf("failed to insert coin into MongoDB: %s", err.Error())
 	}
 
 	return coin.Id, nil

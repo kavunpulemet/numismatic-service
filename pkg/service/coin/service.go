@@ -9,7 +9,7 @@ import (
 	"errors"
 )
 
-type CoinService interface {
+type Service interface {
 	Create(ctx utils.MyContext, coin models.Coin) (string, error)
 	GetAll(ctx utils.MyContext) ([]models.Coin, error)
 	GetById(ctx utils.MyContext, coinId string) (models.Coin, error)
@@ -17,19 +17,19 @@ type CoinService interface {
 	Delete(ctx utils.MyContext, coinId string) error
 }
 
-type ImplCoinService[K any, T any] struct {
-	mongo database.CoinRepository
+type ImplService[K any, T any] struct {
+	mongo database.Repository
 	cache cache.CoinCache[string, models.Coin] // *cache.RedisCache[string, models.Coin]
 }
 
-func NewCoinService(repo database.CoinRepository, cache cache.CoinCache[string, models.Coin]) *ImplCoinService[string, models.Coin] {
-	return &ImplCoinService[string, models.Coin]{
+func NewService(repo database.Repository, cache cache.CoinCache[string, models.Coin]) *ImplService[string, models.Coin] {
+	return &ImplService[string, models.Coin]{
 		mongo: repo,
 		cache: cache,
 	}
 }
 
-func (s *ImplCoinService[K, T]) Create(ctx utils.MyContext, coin models.Coin) (string, error) {
+func (s *ImplService[K, T]) Create(ctx utils.MyContext, coin models.Coin) (string, error) {
 	coinId, err := s.mongo.Create(ctx, coin)
 	if err != nil {
 		return coinId, err
@@ -38,7 +38,7 @@ func (s *ImplCoinService[K, T]) Create(ctx utils.MyContext, coin models.Coin) (s
 	return coinId, nil
 }
 
-func (s *ImplCoinService[K, T]) GetAll(ctx utils.MyContext) ([]models.Coin, error) {
+func (s *ImplService[K, T]) GetAll(ctx utils.MyContext) ([]models.Coin, error) {
 	coins, err := s.mongo.GetAll(ctx)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (s *ImplCoinService[K, T]) GetAll(ctx utils.MyContext) ([]models.Coin, erro
 	return coins, nil
 }
 
-func (s *ImplCoinService[K, T]) GetById(ctx utils.MyContext, coinId string) (models.Coin, error) {
+func (s *ImplService[K, T]) GetById(ctx utils.MyContext, coinId string) (models.Coin, error) {
 	coin, err := s.cache.Get(ctx, coinId)
 	if err == nil {
 		return coin, nil
@@ -66,7 +66,7 @@ func (s *ImplCoinService[K, T]) GetById(ctx utils.MyContext, coinId string) (mod
 	return coin, nil
 }
 
-func (s *ImplCoinService[K, T]) Update(ctx utils.MyContext, coinId string, input models.Coin) error {
+func (s *ImplService[K, T]) Update(ctx utils.MyContext, coinId string, input models.Coin) error {
 	err := s.mongo.Update(ctx, coinId, mappers.MapToUpdateCoin(input))
 	if err != nil {
 		return err
@@ -77,7 +77,7 @@ func (s *ImplCoinService[K, T]) Update(ctx utils.MyContext, coinId string, input
 	return nil
 }
 
-func (s *ImplCoinService[K, T]) Delete(ctx utils.MyContext, coinId string) error {
+func (s *ImplService[K, T]) Delete(ctx utils.MyContext, coinId string) error {
 	err := s.mongo.Delete(ctx, coinId)
 	if err != nil {
 		return err

@@ -65,7 +65,7 @@ func (a *App) InitDatabase() error {
 }
 
 func (a *App) InitService() {
-	s := coin.NewCoinService(database.NewMongoRepository(a.mongo), cache.NewRedisCache[string, models.Coin](a.redis, cacheKey, ttl))
+	s := coin.NewService(database.NewMongoRepository(a.mongo), cache.NewRedisCache[string, models.Coin](a.redis, cacheKey, ttl))
 
 	a.server = api.NewServer(a.ctx)
 	a.server.HandleCoins(a.ctx, s)

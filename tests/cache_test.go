@@ -25,7 +25,7 @@ func TestGetById_FoundInCache_MongoNotCalled(t *testing.T) {
 
 	mongoMock := &mocks.MongoMock{}
 
-	service := coin.NewCoinService(mongoMock, redisMock)
+	service := coin.NewService(mongoMock, redisMock)
 
 	coin, err := service.GetById(ctx, coinId)
 
@@ -58,7 +58,7 @@ func TestGetById_NotFoundInCache_FoundInMongo(t *testing.T) {
 		Err  error
 	}{Coin: expectedCoin, Err: nil}
 
-	service := coin.NewCoinService(mongoMock, redisMock)
+	service := coin.NewService(mongoMock, redisMock)
 
 	coin, err := service.GetById(ctx, coinId)
 
@@ -98,7 +98,7 @@ func TestGetById_NotFoundInCache_NotFoundInMongo(t *testing.T) {
 		Err  error
 	}{Coin: models.Coin{}, Err: database.ErrNotFound}
 
-	service := coin.NewCoinService(mongoMock, redisMock)
+	service := coin.NewService(mongoMock, redisMock)
 
 	_, err := service.GetById(ctx, coinId)
 
@@ -127,7 +127,7 @@ func TestUpdate_DeletesFromCache(t *testing.T) {
 	mongoMock := &mocks.MongoMock{}
 	mongoMock.UpdateResults.Err = nil
 
-	service := coin.NewCoinService(mongoMock, redisMock)
+	service := coin.NewService(mongoMock, redisMock)
 
 	err := service.Update(ctx, coinId, input)
 
@@ -150,7 +150,7 @@ func TestDelete_DeletesFromCache(t *testing.T) {
 	mongoMock := &mocks.MongoMock{}
 	mongoMock.DeleteResults.Err = nil
 
-	service := coin.NewCoinService(mongoMock, redisMock)
+	service := coin.NewService(mongoMock, redisMock)
 
 	err := service.Delete(ctx, coinId)
 

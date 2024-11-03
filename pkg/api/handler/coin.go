@@ -20,7 +20,7 @@ import (
 // @Failure 400 {object} utils.ErrorResponse "Bad request"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /coins/ [post]
-func Create(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
+func Create(ctx utils.MyContext, service coin.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var coin models.Coin
 		if err := json.NewDecoder(r.Body).Decode(&coin); err != nil {
@@ -53,7 +53,7 @@ func Create(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 // @Success 200 {array} models.Coin "List of coins"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /coins/ [get]
-func GetAll(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
+func GetAll(ctx utils.MyContext, service coin.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		coins, err := service.GetAll(ctx)
 		if err != nil {
@@ -78,7 +78,7 @@ func GetAll(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 // @Failure 400 {object} utils.ErrorResponse "Invalid coin ID"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /coins/{id}/ [get]
-func GetById(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
+func GetById(ctx utils.MyContext, service coin.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		coinId := mux.Vars(r)["id"]
 		if coinId == "" {
@@ -111,7 +111,7 @@ func GetById(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 // @Failure 400 {object} utils.ErrorResponse "Invalid coin ID or bad request"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /coins/{id}/ [put]
-func Update(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
+func Update(ctx utils.MyContext, service coin.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		coinId := mux.Vars(r)["id"]
 		if coinId == "" {
@@ -147,7 +147,7 @@ func Update(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
 // @Failure 400 {object} utils.ErrorResponse "Invalid coin ID"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /coins/{id}/ [delete]
-func Delete(ctx utils.MyContext, service coin.CoinService) http.HandlerFunc {
+func Delete(ctx utils.MyContext, service coin.Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		coinId := mux.Vars(r)["id"]
 		if coinId == "" {
