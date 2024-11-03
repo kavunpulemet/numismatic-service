@@ -31,12 +31,12 @@ jobs:
       - name: Show MongoDB logs (initial check)
         run: docker logs mongo || true
 
+      - name: Show application logs
+        run: docker logs numismatic-app || true
+
       - name: Run tests
         run: |
           docker exec numismatic-app go test ./tests
-
-      - name: Show MongoDB logs (post-check)
-        run: docker logs mongo || true
 
       - name: Stop and remove containers
         run: |
