@@ -166,3 +166,20 @@ func Delete(ctx utils.MyContext, service coin.Service) http.HandlerFunc {
 		}
 	}
 }
+
+// Ping godoc
+// @Summary Ping the server
+// @Description Checks if the server is up and running
+// @Tags health
+// @Produce json
+// @Success 200 {object} utils.StatusResponse "pong"
+// @Failure 500 {object} utils.ErrorResponse "Internal server error"
+// @Router /api/ping/ [get]
+func Ping(ctx utils.MyContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := utils.WriteResponse(w, http.StatusOK, utils.StatusResponse{Status: "pong"}); err != nil {
+			utils.NewErrorResponse(ctx, w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+}

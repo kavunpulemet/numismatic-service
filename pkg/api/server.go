@@ -57,4 +57,5 @@ func (s *Server) HandleCoins(ctx utils.MyContext, service coin.Service) {
 	s.router.HandleFunc("/api/coins/{id}/", handler.GetById(ctx, service)).Methods(http.MethodGet)
 	s.router.HandleFunc("/api/coins/{id}/", handler.Update(ctx, service)).Methods(http.MethodPut)
 	s.router.HandleFunc("/api/coins/{id}/", handler.Delete(ctx, service)).Methods(http.MethodDelete)
+	s.router.HandleFunc("/api/ping/", handler.Ping(ctx)).Methods(http.MethodGet)
 }

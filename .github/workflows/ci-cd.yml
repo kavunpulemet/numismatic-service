@@ -28,8 +28,17 @@ jobs:
         run: |
           docker-compose up -d --build app
 
-      - name: Wait for a few seconds
-        run: sleep 30
+      - name: Check if the app server is ready
+        run: |
+          retries=10
+          until curl -s http://localhost:80/api/ping/; do
+            if [ $retries -le 0 ]; then
+              echo "App server is not responding"
+              exit 1
+            fi
+            retries=$((retries - 1))
+            sleep 3
+          done
 
       - name: Show MongoDB logs (initial check)
         run: docker logs mongo || true
