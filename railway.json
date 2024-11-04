@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "services": {
+    "numismatic-service": {
+      "type": "docker",
+      "image": "numismatic-app",
+      "build": {
+        "dockerfile": "Dockerfile"
+      },
+      "environment": {
+        "MONGO_HOST": "mongo",
+        "MONGO_PORT": "27017",
+        "MONGO_DATABASE": "coins",
+        "REDIS_HOST": "redis",
+        "REDIS_PORT": "6379",
+        "REDIS_PASSWORD": ""
+      },
+      "ports": {
+        "http": 80
+      }
+    },
+    "mongo": {
+      "type": "docker",
+      "image": "mongo:latest",
+      "environment": {
+        "MONGO_INITDB_DATABASE": "coins"
+      },
+      "ports": {
+        "mongo": 27017
+      }
+    },
+    "redis": {
+      "type": "docker",
+      "image": "redis:latest",
+      "ports": {
+        "redis": 6379
+      }
+    }
+  }
+}
