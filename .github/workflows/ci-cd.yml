@@ -72,4 +72,4 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          railway up || { echo "Railway deploy failed"; exit 1; }
+          railway up --service numismatic-service || { echo "Railway deploy failed"; exit 1; }
