@@ -52,6 +52,7 @@ func (a *App) InitDatabase() error {
 
 	a.redis = redis.NewClient(&redis.Options{
 		Addr:     a.settings.Redis.Address,
+		Username: a.settings.Redis.User,
 		Password: a.settings.Redis.Password,
 		DB:       a.settings.Redis.DB,
 	})

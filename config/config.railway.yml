@@ -1,0 +1,15 @@
+port: "80"
+
+mongo:
+  database: "coins"
+  host: "mongodb.railway.internal" # service name from docker-compose
+  port: "27017"
+  user: "mongo"
+  password: "jmwAsODuiYumrJcwfAOvPaGSQtQGavqj"
+
+redis:
+  host: "redis.railway.internal"
+  port: "6379"
+  user: "default"
+  password: "CJnXDjKFMRcqLXBcnkDYvJJEsSiPFPJn"
+  db: 0

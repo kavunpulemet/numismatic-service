@@ -68,8 +68,11 @@ jobs:
           export PATH="$HOME/.railway/bin:$PATH"
           echo "Railway CLI installed at: $(which railway)"
 
-      - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Authenticate with Railway
         run: |
-          railway up --service numismatic-service || { echo "Railway deploy failed"; exit 1; }
+          railway login --token ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Deploy to Railway
+        run: |
+          railway up --service App || { echo "Railway deploy failed"; exit 1; }
