@@ -6,9 +6,35 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:80",
+    "host": "app-production-d0fb.up.railway.app",
     "basePath": "/api",
     "paths": {
+        "/api/ping/": {
+            "get": {
+                "description": "Checks if the server is up and running",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Ping the server",
+                "responses": {
+                    "200": {
+                        "description": "pong",
+                        "schema": {
+                            "$ref": "#/definitions/utils.StatusResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/coins/": {
             "get": {
                 "description": "Retrieves all coins from the collection",

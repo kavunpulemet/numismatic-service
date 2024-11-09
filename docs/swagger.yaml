@@ -51,13 +51,30 @@ definitions:
       status:
         type: string
     type: object
-host: localhost:80
+host: app-production-d0fb.up.railway.app
 info:
   contact: {}
   description: This is a sample API for a Numismatic Club.
   title: Numismatic Club API
   version: "1.0"
 paths:
+  /api/ping/:
+    get:
+      description: Checks if the server is up and running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: pong
+          schema:
+            $ref: '#/definitions/utils.StatusResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Ping the server
+      tags:
+      - health
   /coins/:
     get:
       description: Retrieves all coins from the collection
