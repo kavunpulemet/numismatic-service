@@ -11,5 +11,5 @@ redis:
   host: "redis.railway.internal"
   port: "6379"
   user: "default"
-  password: "CJnXDjKFMRcqLXBcnkDYvJJEsSiPFPJn"
+  password: "CawgQuzLjwDeCyggYMNiDaHcDRMxmJOb"
   db: 0

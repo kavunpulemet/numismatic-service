@@ -16,43 +16,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.22.3'
 
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
-      - name: Build and start services
-        run: |
-          docker-compose up -d --build app
-
-      - name: Check if the app server is ready
-        run: |
-          retries=10
-          until curl -s http://localhost:80/api/ping/; do
-            if [ $retries -le 0 ]; then
-              echo "App server is not responding"
-              exit 1
-            fi
-            retries=$((retries - 1))
-            sleep 3
-          done
-
-      - name: Show MongoDB logs (initial check)
-        run: docker logs mongo || true
-
-      - name: Show application logs
-        run: docker logs numismatic-app || true
+      - name: Install dependencies
+        run: go mod tidy
 
       - name: Run tests
-        run: |
-          docker exec numismatic-app go test ./tests
-
-      - name: Stop and remove containers
-        run: |
-          docker-compose down
+        run: go test ./...
 
   deploy:
     runs-on: ubuntu-latest
